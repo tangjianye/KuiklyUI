@@ -3,7 +3,7 @@
     <img alt="Kuikly Logo"  src="img/kuikly_logo.svg" />
 </p>
 
-English | [简体中文](./README-zh_CN.md) | [Homepage](https://tdf.tds.qq.com/)
+English | [简体中文](./README-zh_CN.md) | [Homepage](https://framework.tds.qq.com/)
 
 
 ## Introduction

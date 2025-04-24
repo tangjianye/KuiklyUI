@@ -2,7 +2,7 @@
     <img alt="Kuikly Logo"  src="img/kuikly_logo.svg" />
 </p>
 
-[English](./README.md) | 简体中文 | [官网](https://tdf.tds.qq.com/)
+[English](./README.md) | 简体中文 | [官网](https://framework.tds.qq.com/)
 
 ## 项目介绍
 `Kuikly` 是基于Kotlin Multiplatform的UI与逻辑全面跨端综合解决方案，由腾讯大前端领域Oteam（公司级）推出，旨在提供一套`一码多端、极致易用、动态灵活的全平台高性能开发框架`。目前已支持平台：
