@@ -1,13 +1,16 @@
 
 #use_frameworks!
-source 'https://cdn.cocoapods.org/'
+# source 'https://cdn.cocoapods.org/'
+# source 'https://github.com/CocoaPods/Specs.git'
+source 'https://mirrors.tuna.tsinghua.edu.cn/git/CocoaPods/Specs.git'
 
 target 'iosApp' do
   platform :ios, '14.1'
   pod 'SDWebImage', '~> 5.20.1'
   pod 'OpenKuiklyIOSRender', :path => '../'
   pod 'demo', :path => '../demo'
-  pod 'WMPlayer',  :git => 'https://github.com/zhengwenming/WMPlayer.git'#第三方播放器库
+  # pod 'WMPlayer',  :git => 'https://github.com/zhengwenming/WMPlayer.git' #第三方播放器库
+  pod 'WMPlayer',  :git => 'git@github.com:zhengwenming/WMPlayer.git' #第三方播放器库
   pod 'libpag', "~> 4.3.21"
 end
 

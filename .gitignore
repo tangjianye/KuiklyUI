@@ -43,3 +43,4 @@ proto/**/*.kt
 .kotlin
 /compose/compose.podspec
 /core/core.podspec
+/iosApp/Podfile.lock
