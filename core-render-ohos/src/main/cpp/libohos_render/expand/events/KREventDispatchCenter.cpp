@@ -115,9 +115,9 @@ void KREventDispatchCenter::UnregisterEvent(const std::shared_ptr<IKRRenderViewE
 
     kuikly::util::GetNodeApi()->removeNodeEventReceiver(ark_ui_node_handle, KRNodeEventReceiver);
     const auto &register_event = it->second->RegisterEvents();
-    for (const auto &event_type : register_event) {
+    std::for_each(register_event.begin(), register_event.end(), [ark_ui_node_handle](auto event_type){
         kuikly::util::GetNodeApi()->unregisterNodeEvent(ark_ui_node_handle, event_type);
-    }
+    });
     event_handler_map_.erase(ark_ui_node_handle);
 }
 
@@ -155,9 +155,9 @@ void KREventDispatchCenter::UnregisterCustomEvent(const std::shared_ptr<IKRRende
     kuikly::util::GetNodeApi()->removeNodeCustomEventReceiver(ark_ui_node_handle, KRNodeCustomEventReceiver);
 
     const auto &register_event = it->second->RegisterEvents();
-    for (const auto &event_type : register_event) {
+    std::for_each(register_event.begin(), register_event.end(), [ark_ui_node_handle](auto event_type){
         kuikly::util::GetNodeApi()->unregisterNodeCustomEvent(ark_ui_node_handle, event_type);
-    }
+    });
     custom_event_handler_map_.erase(ark_ui_node_handle);
 }
 
@@ -252,6 +252,7 @@ void KREventDispatchCenter::RegisterGestureInterrupter(const std::shared_ptr<IKR
             entry = gesture_event_it->second;
         }
         gesture_interrupter_handler_map_[node_handle] = entry;
+        legacy_gesture_interrupter_handler_map_[view_export->GetNodeId()] = entry;
         kuikly::util::GetGestureApi()->setGestureInterrupterToNode(node_handle, [](ArkUI_GestureInterruptInfo *info) {
             return KREventDispatchCenter::GetInstance().OnInterruptGestureEvent(info);
         });
@@ -269,6 +270,7 @@ void KREventDispatchCenter::UnregisterGestureInterrupter(const std::shared_ptr<I
         kuikly::util::GetGestureApi()->setGestureInterrupterToNode(
             ark_ui_node_handle, [](ArkUI_GestureInterruptInfo *info) { return GESTURE_INTERRUPT_RESULT_CONTINUE; });
         gesture_interrupter_handler_map_.erase(ark_ui_node_handle);
+        legacy_gesture_interrupter_handler_map_.erase(view_export->GetNodeId());
     }
 }
 
@@ -288,13 +290,24 @@ void KREventDispatchCenter::OnReceiverGestureEvent(const ArkUI_NodeHandle node_h
 ArkUI_GestureInterruptResult KREventDispatchCenter::OnInterruptGestureEvent(const ArkUI_GestureInterruptInfo *info) {
     auto recognizer = OH_ArkUI_GestureInterruptInfo_GetRecognizer(info);
     auto node_handle = kuikly::util::GetGestureApi()->GetAttachedNodeForRecognizer(recognizer);
-    auto it = gesture_interrupter_handler_map_.find(node_handle);
-    if (it == gesture_interrupter_handler_map_.end()) {
+    std::shared_ptr<KRGestureEventRegisterEntry> entry;
+    if (node_handle) {
+        auto it = gesture_interrupter_handler_map_.find(node_handle);
+        if (it != gesture_interrupter_handler_map_.end()) {
+            entry = it->second;
+        }
+    } else {
+        auto node_id = kuikly::util::GetGestureApi()->GetGestureBindNodeId(recognizer);
+        auto it = legacy_gesture_interrupter_handler_map_.find(node_id);
+        if (it != legacy_gesture_interrupter_handler_map_.end()) {
+            entry = it->second;
+        }
+    }
+    if (!entry) {
         // 获取是否系统手势
         auto systemFlag = OH_ArkUI_GestureInterruptInfo_GetSystemFlag(info);
         return systemFlag ? GESTURE_INTERRUPT_RESULT_CONTINUE : GESTURE_INTERRUPT_RESULT_REJECT;
     }
-    auto entry = it->second;
     if (entry->HasSetCaptureRule()) {
         auto gesture_type = kuikly::util::GetGestureApi()->getGestureType(recognizer);
         auto gesture_event = OH_ArkUI_GestureInterruptInfo_GetGestureEvent(info);
